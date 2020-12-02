@@ -7,13 +7,18 @@ namespace VaultLogger.Configuration
 {
     public class Settings
     {
-        internal IPAddress IPv4Address = IPAddress.Parse(Constants.DefaultAddress);
-        internal int Port = Constants.DefaultPort;
-        internal int SocketBufferSize = Constants.DefaultSocketBufferSize;
-        internal int ConnectionQueue = Constants.DefaultConnectionQueue;
+        private string addressExceptionMessage = $"{Constants.AddressParamName} requires a properly formatted IPv4 address (Default: {Constants.DefaultAddress}).";
+        private string portExceptionMessage = $"{Constants.PortParamName} requires an integer value within the acceptable port range [1024-65535] (Default: {Constants.DefaultPort}).";
+        private string connectionQueueExceptionMessage = $"{Constants.ConnectionQueueParamName} requires an integer value (Default: {Constants.DefaultConnectionQueue}).";
+        private string socketBufferSizeExceptionMessage = $"{Constants.SocketBufferSizeParamName} requires an integer value in kilobytes (e.g. 2048, 4096, 8192) (Default: {Constants.DefaultSocketBufferSize}).";
+
+        public IPAddress IPv4Address = IPAddress.Parse(Constants.DefaultAddress);
+        public int Port = Constants.DefaultPort;
+        public int SocketBufferSize = Constants.DefaultSocketBufferSize;
+        public int ConnectionQueue = Constants.DefaultConnectionQueue;
 
         /// <summary>
-        /// Program settings to be used by the application
+        /// Initialized new settings for the application
         /// </summary>
         /// <param name="args">Startup arguments provided at runtime</param>
         public Settings(string[] args)
@@ -26,6 +31,10 @@ namespace VaultLogger.Configuration
             }
         }
 
+        /// <summary>
+        /// Evaluate each optional argument used by the application
+        /// </summary>
+        /// <param name="args">Arguments provied during the startup</param>
         private void evaluateArgs(string[] args)
         {
             if (Program.DebugLog.IsDebugEnabled)
@@ -36,25 +45,47 @@ namespace VaultLogger.Configuration
             string addressString = getArgValue(args, Constants.AddressParamName);
             if (!string.IsNullOrWhiteSpace(addressString))
             {
-                if (!isValidIPv4Format(addressString))
+                try
                 {
-                    throw new Exception(Constants.AddressParamExceptionMessage);
-                }
+                    string[] octets = addressString.Split('.');
+                    if (octets.Length != 4)
+                    {
+                        throw new Exception($"Validation failed - address contained an invalid number of octets [{octets.Length}]");
+                    }
 
-                IPv4Address = IPAddress.Parse(addressString);
+                    if (octets.All(octet => byte.TryParse(octet, out _)) == false)
+                    {
+                        throw new Exception("Validation failed - not all octets in the address were integers.");
+                    }
+
+                    IPv4Address = IPAddress.Parse(addressString);
+                }
+                catch (Exception ex)
+                {
+                    Program.DebugLog.Debug(ex);
+                    throw new Exception(addressExceptionMessage);
+                }
             }
 
             string portString = getArgValue(args, Constants.PortParamName);
             if (!string.IsNullOrWhiteSpace(portString))
             {
-                if (!int.TryParse(portString, out Port))
+                try
                 {
-                    throw new Exception(Constants.PortParamExceptionMessage);
-                }
+                    if (!int.TryParse(portString, out Port))
+                    {
+                        throw new Exception($"Validation failed - {Constants.PortParamName} was not a valid integer.");
+                    }
 
-                if (!Enumerable.Range(1024, 65535).Contains(Port))
+                    if (!Enumerable.Range(1024, 65535).Contains(Port))
+                    {
+                        throw new Exception($"Validation failed - {Constants.PortParamName} was outside the acceptable integer range.");
+                    }
+                }
+                catch (Exception ex)
                 {
-                    throw new Exception(Constants.PortParamOutOfRangeExceptionMessage);
+                    Program.DebugLog.Debug(ex);
+                    throw new Exception(portExceptionMessage);
                 }
             }
 
@@ -63,21 +94,29 @@ namespace VaultLogger.Configuration
             {
                 if (!int.TryParse(connectionQueueString, out ConnectionQueue))
                 {
-                    throw new Exception(Constants.ConnectionQueueParamExceptionMessage);
+                    throw new Exception(connectionQueueExceptionMessage);
                 }
             }
 
             string socketBufferSizeString = getArgValue(args, Constants.SocketBufferSizeParamName);
             if (!string.IsNullOrWhiteSpace(socketBufferSizeString))
             {
-                if (!int.TryParse(socketBufferSizeString, out SocketBufferSize))
+                try
                 {
-                    throw new Exception(Constants.SocketBufferSizeParamExceptionMessage);
-                }
+                    if (!int.TryParse(socketBufferSizeString, out SocketBufferSize))
+                    {
+                        throw new Exception($"Validation failed - {Constants.SocketBufferSizeParamName} was not a valid integer.");
+                    }
 
-                if (SocketBufferSize % 1024 != 0)
+                    if (SocketBufferSize % 1024 != 0)
+                    {
+                        throw new Exception($"Validation failed - {Constants.SocketBufferSizeParamName} was not in a valid kilobytes format (e.g. 2048, 4096, 8192).");
+                    }
+                }
+                catch (Exception ex)
                 {
-                    throw new Exception(Constants.SocketBufferSizeParamOutOfRangeExceptionMessage);
+                    Program.DebugLog.Debug(ex);
+                    throw new Exception(socketBufferSizeExceptionMessage);
                 }
             }
         }
@@ -99,31 +138,6 @@ namespace VaultLogger.Configuration
             }
 
             return argValue;
-        }
-
-        /// <summary>
-        /// Check if valid IPv4 address format
-        /// </summary>
-        /// <param name="address">IPv4 address in string format (e.g. 127.0.0.1)</param>
-        /// <returns>True if string is in correct IPv4 address format, else False</returns>
-        private bool isValidIPv4Format(string address)
-        {
-            Program.DebugLog.Debug("Validating address format");
-
-            string[] octets = address.Split('.');
-            if (octets.Length != 4)
-            {
-                Program.DebugLog.Debug($"Validation failed - address contained an invalid number of octets [{octets.Length}]");
-                return false;
-            }
-
-            if (octets.All(octet => byte.TryParse(octet, out _)) == false)
-            {
-                Program.DebugLog.Debug("Validation failed - not all octets in the address were integers");
-                return false;
-            }
-
-            return true;
         }
     }
 }

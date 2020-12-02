@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,11 +17,21 @@ namespace VaultLogger
         private static ManualResetEvent allDone = new ManualResetEvent(false);
         private static int exitCode = 0;
 
-        internal static Settings Config;
-        internal static readonly Logger DebugLog = LogManager.GetCurrentClassLogger();
+        #region Handle shutdown
+        [DllImport("Kernel32")]
+        private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
+        private delegate bool EventHandler(CtrlTypes sig);
+        private static EventHandler _handler = new EventHandler(handler);
+        #endregion
 
-        public static int Main(String[] args)
+        public static Settings Config;
+        public static readonly Logger DebugLog = LogManager.GetCurrentClassLogger();
+
+        public static void Main(String[] args)
         {
+            SetConsoleCtrlHandler(_handler, true);
+            DebugLog.Info("Starting up...");
+
             try
             {
                 Config = new Settings(args);
@@ -32,8 +43,6 @@ namespace VaultLogger
                 DebugLog.Debug(ex);
                 exitCode = 1;
             }
-
-            return exitCode;
         }
 
         internal static void StartListening()
@@ -122,28 +131,38 @@ namespace VaultLogger
 
         private static Task logContent(string content, string id)
         {
-            if (string.IsNullOrWhiteSpace(content))
+            if (!string.IsNullOrWhiteSpace(content))
             {
-                return Task.CompletedTask;
-            }
-
-            try
-            {
-                DebugLog.Info($"[{id}] Sending {content.Length} bytes to logger [{auditLog.Name}]");
-
-                string[] entries = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string entry in entries)
+                try
                 {
-                    auditLog.Info(entry.Trim());
+                    DebugLog.Info($"[{id}] Sending {content.Length} bytes to logger [{auditLog.Name}]");
+
+                    string[] entries = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string entry in entries)
+                    {
+                        auditLog.Info(entry.Trim());
+                        DebugLog.Trace($"[{id}] {entry.Trim()}");
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                DebugLog.Error(ex, $"[{id}] logContent exception");
+                catch (Exception ex)
+                {
+                    DebugLog.Error(ex, $"[{id}] logContent exception");
+                }
             }
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Handle CTRL events to support shutdown tasks
+        /// </summary>
+        private static bool handler(CtrlTypes ctrlType)
+        {
+            DebugLog.Info("Shutting down...");
+            LogManager.Flush();
+            Environment.Exit(exitCode);
+            return true;
         }
     }
 }
