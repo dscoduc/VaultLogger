@@ -5,7 +5,7 @@ See https://www.vaultproject.io/docs/audit/socket for details on configuring Vau
 
 Executing the application without any startup arguments uses the default values displayed below.
 
-Optional Startup Arguments
+### Optional Startup Arguments
   * -Address={string}
   
         IPv4 Address to listen for incoming connections (default = 127.0.0.1)
@@ -19,7 +19,7 @@ Optional Startup Arguments
 
         Buffer size in kilobytes used to handle incoming socket data stream (default = 8192)
 
-Example:  
+### Example:  
 ```
 C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090
 
