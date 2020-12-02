@@ -65,9 +65,8 @@ namespace VaultLogger
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
 
-            StateObject state = new StateObject();
+            StateObject state = new StateObject(handler);
 
-            state.workSocket = handler;
             handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
         }
 
@@ -80,7 +79,7 @@ namespace VaultLogger
             {
                 int bytesRead = handler.EndReceive(ar);
 
-                DebugLog.Debug("[{0}] Reading {1} bytes from socket handler", state.Id, bytesRead);
+                DebugLog.Debug($"[{state.Id}] Reading {bytesRead} bytes from socket handler");
 
                 if (bytesRead > 0)
                 {
@@ -88,36 +87,36 @@ namespace VaultLogger
 
                     if (handler.Available > 0)
                     {
-                        DebugLog.Debug("[{0}] Socket handler contains {1} bytes remaining to read", state.Id, handler.Available);
+                        DebugLog.Debug($"[{state.Id}] Socket handler contains {handler.Available} bytes remaining to read");
                         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                     }
                     else
                     {
                         var content = state.ReadAndFlushStringContent();
-                        
+
                         Task.Run(() => logContent(content.Trim(), state.Id.ToString()));
 
-                        DebugLog.Debug("[{0}] Socket handler connected: {1}", state.Id, handler.Connected);
-                        DebugLog.Debug("[{0}] Socket handler remaining bytes: {1}", state.Id, handler.Available);
+                        DebugLog.Debug($"[{state.Id}] Socket handler connected: {handler.Connected}");
+                        DebugLog.Debug($"[{state.Id}] Socket handler remaining bytes: {handler.Available}");
 
                         if (handler.Connected == false || handler.Available == 0)
                         {
-                            DebugLog.Debug("[{0}] Shutting down socket connection", state.Id);
+                            DebugLog.Debug($"[{state.Id}] Shutting down socket connection");
                             handler.Shutdown(SocketShutdown.Both);
                             handler.Close();
-                            DebugLog.Info("[{0}] Socket connection closed", state.Id);
+                            DebugLog.Info($"[{state.Id}] Socket connection closed");
                         }
                         else
                         {
-                            DebugLog.Debug("[{0}] Sending back around to get remaining stream content", state.Id);
+                            DebugLog.Debug($"[{state.Id}] Sending back around to get remaining stream content");
                             handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                        }                        
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                DebugLog.Warn(ex, "[{0}] ReadCallback exception", state.Id);
+                DebugLog.Warn(ex, $"[{state.Id}] ReadCallback exception");
             }
         }
 
@@ -130,7 +129,7 @@ namespace VaultLogger
 
             try
             {
-                DebugLog.Info("[{0}] Sending {1} bytes to logger [{2}]", id, content.Length, auditLog.Name);
+                DebugLog.Info($"[{id}] Sending {content.Length} bytes to logger [{auditLog.Name}]");
 
                 string[] entries = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -141,7 +140,7 @@ namespace VaultLogger
             }
             catch (Exception ex)
             {
-                DebugLog.Error(ex, "[{0}] logContent exception", id);
+                DebugLog.Error(ex, $"[{id}] logContent exception");
             }
 
             return Task.CompletedTask;

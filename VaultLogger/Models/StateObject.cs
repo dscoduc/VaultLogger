@@ -15,14 +15,19 @@ namespace VaultLogger.Models
         public byte[] buffer = new byte[BufferSize];
         public Socket workSocket = null;
 
-        public StateObject()
+        public StateObject() { }
+
+        public StateObject(Socket handler)
         {
-            Program.DebugLog.Info("[{0}] New socket connection established", Id);
+            workSocket = handler;
+
+            System.Net.IPAddress remoteAddress = ((System.Net.IPEndPoint)workSocket.RemoteEndPoint).Address;
+            Program.DebugLog.Info($"[{Id}] New socket connection established from {remoteAddress}");
         }
 
         public void AddStringContent(string content)
         {
-            Program.DebugLog.Debug("[{0}] Adding content to socket handler log cache", Id);
+            Program.DebugLog.Debug($"[{Id}] Adding content to socket handler log cache");
 
             lock (_syncLock)
             {
@@ -31,14 +36,14 @@ namespace VaultLogger.Models
         }
         public string ReadAndFlushStringContent()
         {
-            Program.DebugLog.Debug("[{0}] Retrieving and flushing all content from socket handler log cache", Id);
+            Program.DebugLog.Debug($"[{Id}] Retrieving and flushing all content from socket handler log cache");
 
             string rValue;
 
             lock (_syncLock)
             {
                 rValue = _sb.ToString();
-                _sb.Clear();                
+                _sb.Clear();
             }
 
             return rValue;
