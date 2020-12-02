@@ -1,7 +1,5 @@
 # VaultLogger
-Socket Listener for accepting Vault Audit logging via Sockets with logging handled using NLog.  Log endpoints (https://nlog-project.org/config/?tab=targets) and filtering (https://github.com/nlog/nlog/wiki/Filtering-log-messages) is configured using NLog.config file.
-
-See https://www.vaultproject.io/docs/audit/socket for details on configuring Vault Auditing.
+Socket Listener for accepting Vault Audit logging via Sockets with logging handled using NLog.  Log endpoints and filtering are configured using NLog.config file.
 
 Executing the application without any startup arguments uses the default values displayed below.
 
@@ -19,7 +17,22 @@ Executing the application without any startup arguments uses the default values 
 
         Buffer size in kilobytes used to handle incoming socket data stream (default = 8192)
 
-### Example:  
+#### Example:
+```
+C:\VaultLogger.exe
+
+Listening using the following settings:
+-Address=127.0.0.1
+-Port=11000
+-ConnectionQueue=100
+-SocketBufferSize=8192
+
+[5ea327c1-9e92-4416-a3e0-b6e1a7951dfb] New socket connection established
+[5ea327c1-9e92-4416-a3e0-b6e1a7951dfb] Socket connection closed
+[5ea327c1-9e92-4416-a3e0-b6e1a7951dfb] Sending 100 bytes to logger [AuditLog]
+```
+
+#### Example:
 ```
 C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090
 
@@ -31,5 +44,9 @@ Listening using the following settings:
 
 [addb9773-fe15-40e0-bd43-99cb16e520eb] New socket connection established
 [addb9773-fe15-40e0-bd43-99cb16e520eb] Socket connection closed
-[addb9773-fe15-40e0-bd43-99cb16e520eb] Sending 1 bytes to logger [AuditLog]
+[addb9773-fe15-40e0-bd43-99cb16e520eb] Sending 100 bytes to logger [AuditLog]
 ```
+#### Additional Information
+  * https://nlog-project.org/config/?tab=targets
+  * https://github.com/nlog/nlog/wiki/Filtering-log-messages
+  * https://www.vaultproject.io/docs/audit/socket
