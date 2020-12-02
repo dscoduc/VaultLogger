@@ -7,6 +7,7 @@ Executing the application without any startup arguments uses the default values 
   * -Address={string}
   
         IPv4 Address to listen for incoming connections (default = 127.0.0.1)
+        NOTE: Must be a specific address; 0.0.0.0 is not supported.
   * -Port={int}
   
         Port to listen for incoming connections [1024-65535] (default = 11000)
@@ -15,7 +16,7 @@ Executing the application without any startup arguments uses the default values 
         Number of incoming connections that can be queued for acceptance (default = 100)
   * -SocketBufferSize={int}
 
-        Buffer size in kilobytes used to handle incoming socket data stream (default = 8192)
+        Buffer size in kilobytes used in handle incoming socket data stream (default = 8192)
 
 #### Example:
 ```
@@ -48,6 +49,6 @@ Listening using the following settings:
 ```
 
 #### Additional Information
+  * https://www.vaultproject.io/docs/audit/socket
   * https://nlog-project.org/config/?tab=targets
   * https://github.com/nlog/nlog/wiki/Filtering-log-messages
-  * https://www.vaultproject.io/docs/audit/socket
