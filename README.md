@@ -29,6 +29,7 @@ Executing the application without any startup arguments uses the default values 
 ```
 C:\VaultLogger.exe
 
+Starting up...
 Listening using the following settings:
 -Address=127.0.0.1
 -Port=11000
@@ -44,6 +45,7 @@ Listening using the following settings:
 ```
 C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090 -ConnectionQueue=10 -SocketBufferSize=4096
 
+Starting up...
 Listening using the following settings:
 -Address=192.168.1.10
 -Port=9090
