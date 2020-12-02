@@ -1,9 +1,16 @@
 # VaultLogger
-Socket Listener for accepting Vault Audit logging via Sockets with logging handled using NLog.  Log endpoints and filtering are configured using NLog.config file.
 
-Executing the application without any startup arguments uses the default values displayed below.
+## Summary
+Socket Listener for accepting Vault Audit logging via Sockets.  This solution provides the option to use a local socket listener that can receive the Vault audit events and then leverage NLog to manage/rotate/prune the Vault audit log files.
+
+### Why is this needed?
+Vault does not include any native way to manage/rotate/prune log files and relies on the operating system or other logging services to handle these services.  This is fine for Linux based systems but Windows doesn't include the necessary services.  For example, using a log file for auditing on a Windows system presents a challenge as there isn't a SigHup comparable option for forcing Vault to disconnect/reconnect to the log file.
+
+
 
 ### Optional Startup Arguments
+Executing the application without any startup arguments uses the default values displayed below.
+
   * -Address={string}
   
         IPv4 Address to listen for incoming connections (default = 127.0.0.1)
