@@ -34,18 +34,19 @@ Listening using the following settings:
 
 #### Example:
 ```
-C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090
+C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090 -ConnectionQueue=10 -SocketBufferSize=4096
 
 Listening using the following settings:
 -Address=192.168.1.10
 -Port=9090
--ConnectionQueue=100
--SocketBufferSize=8192
+-ConnectionQueue=10
+-SocketBufferSize=4096
 
 [addb9773-fe15-40e0-bd43-99cb16e520eb] New socket connection established
 [addb9773-fe15-40e0-bd43-99cb16e520eb] Socket connection closed
 [addb9773-fe15-40e0-bd43-99cb16e520eb] Sending 100 bytes to logger [AuditLog]
 ```
+
 #### Additional Information
   * https://nlog-project.org/config/?tab=targets
   * https://github.com/nlog/nlog/wiki/Filtering-log-messages
