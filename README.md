@@ -23,7 +23,7 @@ Executing the application without any startup arguments uses the default values 
         Number of incoming connections that can be queued for acceptance (default = 100)
   * -SocketBufferSize={int}
 
-        Buffer size in kilobytes used in handle incoming socket data stream (default = 8192)
+        Buffer size in kilobytes used in handle data stream (default = 8192)
 
 #### Example:
 ```
