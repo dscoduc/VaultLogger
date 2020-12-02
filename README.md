@@ -3,10 +3,10 @@
 ## Summary
 Socket Listener for accepting Vault Audit logging via Sockets.  This solution provides the option to use a local socket listener that can receive the Vault audit events and then leverage NLog to manage/rotate/prune the Vault audit log files.
 
-### Why is this needed?
 Vault does not include any native way to manage/rotate/prune log files and relies on the operating system or other logging services to handle these services.  This is fine for Linux based systems but Windows doesn't include the necessary services.  For example, using a log file for auditing on a Windows system presents a challenge as there isn't a SigHup comparable option for forcing Vault to disconnect/reconnect to the log file.
 
-
+### Running as a Service
+When running Vault on a Windows platform, it is recommended to use Nssm for configuring Vault to run as a service.  Using Nssm, it is also possible to run VaultLogger as a service and make it a dependent service for Vault.  Once installed as a service, VaultLogger can be running in parallel to the Vault service and accept/process audit log input via the Vault Socket logging option. 
 
 ### Optional Startup Arguments
 Executing the application without any startup arguments uses the default values displayed below.
@@ -59,3 +59,4 @@ Listening using the following settings:
   * https://www.vaultproject.io/docs/audit/socket
   * https://nlog-project.org/config/?tab=targets
   * https://github.com/nlog/nlog/wiki/Filtering-log-messages
+  * https://nssm.cc/
