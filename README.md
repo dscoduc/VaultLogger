@@ -6,13 +6,21 @@ See https://www.vaultproject.io/docs/audit/socket for details on configuring Vau
 Executing the application without any startup arguments uses the default values displayed below.
 
 Optional Startup Arguments
-  * -Address={127.0.0.1}       (IPv4 Address to listen for incoming connections)
-  * -Port={11000}              (Port to listen for incoming connections [1024-65535] )
-  * -ConnectionQueue={100}     (Number of incoming connections that can be queued for acceptance.)
-  * -SocketBufferSize={8192}   (Buffer size in kilobytes used to handle incoming socket data stream)
+  * -Address={string}
+  
+        IPv4 Address to listen for incoming connections (default = 127.0.0.1)
+  * -Port={int}
+  
+        Port to listen for incoming connections [1024-65535] (default = 11000)
+  * -ConnectionQueue={int}
+  
+        Number of incoming connections that can be queued for acceptance (default = 100)
+  * -SocketBufferSize={int}
+
+        Buffer size in kilobytes used to handle incoming socket data stream (default = 8192)
 
 Example:  
-
+```
 C:\VaultLogger.exe -Address=192.168.1.10 -Port=9090
 
 Listening using the following settings:
@@ -24,3 +32,4 @@ Listening using the following settings:
 [addb9773-fe15-40e0-bd43-99cb16e520eb] New socket connection established
 [addb9773-fe15-40e0-bd43-99cb16e520eb] Socket connection closed
 [addb9773-fe15-40e0-bd43-99cb16e520eb] Sending 1 bytes to logger [AuditLog]
+```
